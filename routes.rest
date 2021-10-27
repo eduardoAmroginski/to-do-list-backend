@@ -1,0 +1,70 @@
+####### TASKS #######
+
+### GET
+GET http://localhost:3333/tasks
+###
+
+### GET
+GET http://localhost:3333/tasks/6179957364cce9f80a2348d7
+###
+
+### Enviando POST
+POST http://localhost:3333/tasks
+Content-Type: application/json
+
+{
+    "name": "Teste 3",
+    "description": "lorem ipsum",
+    "done": false
+}
+###
+
+### Enviando PATCH
+PATCH http://localhost:3333/tasks/6179957364cce9f80a2348d7
+Content-Type: application/json
+
+{
+    "done": true
+}
+###
+
+### DELETE
+DELETE http://localhost:3333/tasks/6179957364cce9f80a2348d7
+###
+
+
+
+
+####### USERS #######
+
+### GET
+GET http://localhost:3333/users
+###
+
+### GET
+GET http://localhost:3333/users/6179ae6b1c9a76b20e84db12
+###
+
+### Enviando POST
+POST http://localhost:3333/users
+Content-Type: application/json
+
+{
+    "username": "teste1",
+    "email": "teste@teste.com",
+    "password": "123456"
+}
+###
+
+### Enviando PATCH
+PATCH http://localhost:3333/users/6179957364cce9f80a2348d7
+Content-Type: application/json
+
+{
+    "done": true
+}
+###
+
+### DELETE
+DELETE http://localhost:3333/users/6179ae6b1c9a76b20e84db12
+###
