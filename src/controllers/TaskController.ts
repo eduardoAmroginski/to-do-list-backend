@@ -1,63 +1,71 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
-import Task from '../models/Task'
+import Task, { TaskInterface } from '../models/Task'
+
+interface CustomResponse extends Response {
+  task?: TaskInterface
+}
 
 class TaskController {
-  public async index (request: Request, response: Response): Promise<Response> {
-    const tasks = await Task.find()
-
-    return response.json(tasks)
+  public async index (response: Response): Promise<Response> {
+    try {
+      const tasks = await Task.find()
+      return response.status(200).json(tasks)
+    } catch (error) {
+      return response.status(500).json({ message: 'Failed to fetch tasks' })
+    }
   }
 
-  public async getById (request: Request, response: Response): Promise<Response> {
-    response.json(response.task)
+  public async getById (request: Request, response: CustomResponse): Promise<Response> {
+    return response.status(200).json(response.task)
   }
 
   public async store (request: Request, response: Response): Promise<Response> {
-    const task = await Task.create(request.body)
-    return response.json(task)
+    try {
+      const task = new Task(request.body)
+      await task.save()
+      return response.status(201).json(task)
+    } catch (error) {
+      return response.status(400).json({ message: 'Failed to create task', error: error.message })
+    }
   }
 
-  public async update (request: Request, response: Response): Promise<Response> {
-    if (request.body.name != null) {
-      response.task.name = request.body.name
-    }
-    if (request.body.description != null) {
-      response.task.description = request.body.description
-    }
+  public async update (request: Request, response: CustomResponse): Promise<Response> {
+    const { name, description, done } = request.body
 
-    if (request.body.done != null) {
-      response.task.done = request.body.done
-    }
+    if (name != null) response.task!.name = name
+    if (description != null) response.task!.description = description
+    if (done != null) response.task!.done = done
 
     try {
-      const updateTask = await response.task.save()
-      response.json(updateTask)
+      const updatedTask = await response.task!.save()
+      return response.status(200).json(updatedTask)
     } catch (error) {
-      return response.status(400).json({ message: error.message })
+      return response.status(400).json({ message: 'Failed to update task', error: error.message })
     }
   }
 
-  public async delete (request: Request, response: Response): Promise<Response> {
+  // Deletar uma task
+  public async delete(request: Request, response: CustomResponse): Promise<Response> {
     try {
-      await response.task.remove()
-      response.json({ message: 'Subscriber was deleted' })
+      await response.task!.remove()
+      return response.status(200).json({ message: 'Task was successfully deleted' })
     } catch (error) {
-      response.status(500).json({ message: error.message })
+      return response.status(500).json({ message: 'Failed to delete task', error: error.message })
     }
   }
 
-  public async getTask (request, response, next) { // Middleware
+  public async getTask(request: Request, response: CustomResponse, next: NextFunction) {
     try {
       const task = await Task.findById(request.params.id)
-      if (task == null) {
-        return response.status(404).json({ message: 'Task Not Found!' })
+      if (!task) {
+        return response.status(404).json({ message: 'Task not found' })
       }
       response.task = task
+      next()
     } catch (error) {
-      return response.status(500).json({ message: error.message })
+      return response.status(500).json({ message: 'Failed to retrieve task', error: error.message })
     }
-    next()
   }
 }
 

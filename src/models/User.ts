@@ -31,19 +31,19 @@ const UserSchema: Schema<UserInterface> = new Schema({
 
 // REVER FUNCIONALIDADE DE ENCRIPTAÇÃO DE SENHA
 // * Hash the password befor it is beeing saved to the database
-// UserSchema.pre('save', function (this: UserInterface, next: (err?: Error | undefined) => void) {
-//   console.log(this.password)
-//   // * Make sure you don't hash the hash
-//   if (!this.isModified('password')) {
-//     console.log('ESTOU NO IF DO DIFERENTE DE')
-//     return next()
-//   }
-//   bcrypt.hash(this.password, salt, (err: Error, hash: string) => {
-//     if (err) return next(err)
-//     this.password = hash
-//     console.log('this.password: ', this.password)
-//   })
-// })
+UserSchema.pre('save', function (this: UserInterface, next: (err?: Error | undefined) => void) {
+  console.log(this.password)
+  // * Make sure you don't hash the hash
+  if (!this.isModified('password')) {
+    console.log('ESTOU NO IF DO DIFERENTE DE')
+    return next()
+  }
+  bcrypt.hash(this.password, salt, (err: Error, hash: string) => {
+    if (err) return next(err)
+    this.password = hash
+    console.log('this.password: ', this.password)
+  })
+})
 
 UserSchema.methods.comparePasswords = function (
   userPassword: string,
